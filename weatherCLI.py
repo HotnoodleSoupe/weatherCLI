@@ -10,7 +10,6 @@ cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
 retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
 openmeteo = openmeteo_requests.Client(session = retry_session)
 
-
 version = '0.1 beta'
 land = 'Germany'
 ascii_banner = """
@@ -21,13 +20,15 @@ ascii_banner = """
   `.'`' '`'.'`
      """
 
-headers = {  # nominatim f. nominatim
+wmo_codes = {
+    0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast", 45: "Fog", 48: "Depositing rime fog", 51: "Light Drizzle", 53: "Moderate Drizzle", 55: "Dense Drizzle", 56: "Light Freezing Drizzle", 57: "Dense Freezing Drizzle",
+    61: "Slight Rain", 63: "Moderate Rain", 65: "Heavy Rain", 66: "Light Freezing Rain", 67: "Heavy Freezing Rain", 71: "Slight Snow fall", 73: "Moderate Snow fall", 75: "Heavy Snow fall", 77: "Snow grains", 80: "Slight Rain showers", 81: "Moderate Rain showers",
+    82: "Violent Rain showers", 85: "Slight Snow showers", 86: "Heavy Snow showers", 95: "Slight or moderate Thunderstorm", 96: "Thunderstorm with slight hail", 99: "Thunderstorm with heavy hail"
+}
+
+headers = {  
     'User-Agent':'WeatherCLI (duelger.cem@gmail.com)'
         }
-
-def weatherCode(current_weather_code):
-    print("test def")
-    print(current_weather_code)
 
 # definier optionen
 parser = argparse.ArgumentParser(prog='weatherCLI', description='Weather  Client for ZIP Code or GPS ')
@@ -38,7 +39,7 @@ opt = parser.parse_args()
 print()
 print()
 print(ascii_banner)
-print()
+#print("-z [German Zip Code] / -h for help\n\n")
 
 if opt.version:
     print(version)
@@ -78,26 +79,27 @@ if opt.ZIP_Code:
                 current_cloud_cover = current.Variables(9).Value() # wird vermutlich nicht genutzt
                 current_wind_speed_10m = current.Variables(10).Value()
                 current_wind_direction_10m = current.Variables(11).Value() # wird vermutlich nicht genutzt
-
-                print(f"Your Location: {pos_name}\n")
-                print(f"Current Temp: {round(current_temperature_2m,2)}")
-                print(f"Feels Like: {round(current_apparent_temperature,2)}")
-                print(f"bei tag ausgabe 1.0 bein nacht:{current_is_day}") # noch zu verändern
-                print(f"Precipitation: {current_precipitation} mm")
-                print(f"Wind: {round(current_wind_speed_10m,2)} km/h")
+                weather_txt = wmo_codes.get(current_weather_code)
+                if current_is_day == 1:
+                    day = "Day"
+                else: day = "Night"
+                
+                print(f"Location: {pos_name}\n")
+                print(f"Current Temp: {round(current_temperature_2m,2)}°C / Feels Like: {round(current_apparent_temperature,2)}°C")
                 print(f"Humidity: {current_relative_humidity_2m} %")
-                print(f"{current_weather_code}")
-                weatherCode(current_weather_code)
+                print(f"Wind: {round(current_wind_speed_10m,2)} km/h")
+                print(f"Precipitation: {current_precipitation} mm")
+                print(f"Condition: {day}, {weather_txt}")
                 
+                if current_showers > 0.0:
+                    print(f"Current shower: \033[31m{current_showers}\033[0m")
+                if current_rain > 0.0:
+                    print(f"current Rain: \033[31m{current_rain}\033[0m")
+                if current_snowfall > 0.0:
+                    print(f"Current Snowfall: \033[31m{current_snowfall}\033[0m")
 
-
-
+                #print(current_wind_direction_10m)
                 
-
-
-
-
-            
             except requests.exceptions.RequestException as e:
                 print(f"meteo api error : {e}")  
 
@@ -107,5 +109,3 @@ if opt.ZIP_Code:
     except requests.exceptions.RequestException as e:
         print(f"error occurred: {e}")
     
-    
-
