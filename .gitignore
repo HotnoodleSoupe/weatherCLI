@@ -1,0 +1,22 @@
+# Log- und temporäre Dateien
+*.log
+*.tmp
+*.temp
+
+# Binär-Dateien
+*.out
+*.exe
+*.bin
+
+# Python-spezifische Dateien
+__pycache__/
+.venv/
+venv/
+env/
+.env
+
+# Cache-Dateien von requests_cache
+.cache.sqlite
+
+# MacOS-spezifische Dateien
+.DS_Store
