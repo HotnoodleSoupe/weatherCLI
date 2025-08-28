@@ -34,6 +34,7 @@ headers = {
 parser = argparse.ArgumentParser(prog='weatherCLI', description='Weather  Client for ZIP Code or GPS ')
 parser.add_argument('-v', '--version', action='store_true', help='shows program Version')
 parser.add_argument('-z', '--ZIP_Code', type=str, help='Works only with German Postleitzahl')
+parser.add_argument('-a', '--about', action='store_true', help ='about')
 
 opt = parser.parse_args()
 print()
@@ -44,6 +45,7 @@ print(ascii_banner)
 if opt.version:
     print(version)
 if opt.ZIP_Code:
+
     plz = opt.ZIP_Code
     uri_pos = f"https://nominatim.openstreetmap.org/search?format=json&postalcode={plz}&country={land}"
 
@@ -109,3 +111,22 @@ if opt.ZIP_Code:
     except requests.exceptions.RequestException as e:
         print(f"error occurred: {e}")
     
+if opt.about:
+    print("""
+    About WeatherCLI
+    WeatherCLI is a lightweight, command-line weather tool that provides real-time weather data and forecasts directly in your terminal. 
+    It's built for developers and anyone who wants quick, no-frills access to essential weather information without leaving their command line.
+
+    The application leverages the power of the Open-Meteo API to retrieve highly accurate, model-based weather data. 
+    It is developed using Python, which handles all API requests, data parsing, and output formatting.
+
+    Key Features:
+
+    Real-Time Data: Get current temperature, wind speed, and precipitation.
+
+    Location-Based: Simply enter a postal code to receive weather data for your specific location.
+
+    Minimalist Design: A clean and efficient command-line interface.
+
+    WeatherCLI is an open-source project and is licensed under the MIT License. Contributions are welcome!
+    """)
